@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  codegpt-api:
+    build: .
+    ports:
+      - "8888:8888"
+    environment:
+      - AUTH_TOKEN=${AUTH_TOKEN}
+    volumes:
+      - .:/usr/src/app

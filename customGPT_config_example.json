@@ -1,0 +1,204 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "codeGPT FastAPI Backend",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "put here the url of your public server pointing to your fastapi backend (I use ngrok for this)"
+        }
+    ],
+    "paths": {
+        "/execute_command/": {
+            "post": {
+                "summary": "Execute a terminal command",
+                "operationId": "executeCommand",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "command": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "command"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Command execution result"
+                    }
+                }
+            }
+        },
+        "/read_file/": {
+            "get": {
+                "summary": "Read the content of a specified file",
+                "operationId": "readFile",
+                "parameters": [
+                    {
+                        "name": "file_path",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File content"
+                    }
+                }
+            }
+        },
+        "/upload_file/": {
+            "post": {
+                "summary": "Upload a file to the server",
+                "operationId": "uploadFile",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "required": [
+                                    "file"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Upload result"
+                    }
+                }
+            }
+        },
+        "/diff_files/": {
+            "post": {
+                "summary": "Diff two files and return the differences",
+                "operationId": "diffFiles",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file1_path": {
+                                        "type": "string"
+                                    },
+                                    "file2_path": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "file1_path",
+                                    "file2_path"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Diff result"
+                    }
+                }
+            }
+        },
+        "/execute_git_command/": {
+            "post": {
+                "summary": "Execute a Git command",
+                "operationId": "executeGitCommand",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "git_command": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "git_command"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Git command execution result"
+                    }
+                }
+            }
+        },
+        "/zip_files/": {
+            "post": {
+                "summary": "Zip files and directories",
+                "operationId": "zipFiles",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "directory_path": {
+                                        "type": "string"
+                                    },
+                                    "output_zip_path": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "directory_path",
+                                    "output_zip_path"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Zip operation result"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {},
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ]
+}
