@@ -1,0 +1,306 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "GitHub API for GPT",
+        "version": "v1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://api.github.com"
+        }
+    ],
+    "paths": {
+        "/repos/{owner}/{repo}/branches": {
+            "get": {
+                "summary": "List branches for a repository",
+                "operationId": "listBranches",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of branches in the repository"
+                    }
+                }
+            }
+        },
+        "/repos/{owner}/{repo}/branches/{branch}": {
+            "get": {
+                "summary": "Get a specific branch of a repository",
+                "operationId": "getBranch",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "branch",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Details of the specified branch"
+                    }
+                }
+            }
+        },
+        "/repos/{owner}/{repo}/tarball/{branch}": {
+            "get": {
+                "summary": "Get a tarball of a specific branch of a repository",
+                "operationId": "getBranchTarball",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "branch",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "main"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tarball of the branch"
+                    }
+                }
+            }
+        },
+        "/user/repos": {
+            "get": {
+                "summary": "List your repositories",
+                "operationId": "listRepos",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of items to return per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 30
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number of the items to return",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of repositories"
+                    }
+                }
+            }
+        },
+        "/repos/{owner}/{repo}/contents/{path}": {
+            "get": {
+                "summary": "Get contents of a file",
+                "operationId": "getContents",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "iltoga"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "path",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content of the file",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "content": {
+                                            "type": "string",
+                                            "format": "byte",
+                                            "description": "Base64 encoded content of the file"
+                                        }
+                                    },
+                                    "required": [
+                                        "content"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "x-codegen-request-body-name": "body"
+            }
+        },
+        "/repos/{owner}/{repo}/issues": {
+            "get": {
+                "summary": "List issues for a repository",
+                "operationId": "listRepoIssues",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "iltoga"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of issues"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create an issue",
+                "operationId": "createIssue",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "iltoga"
+                        }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "body": {
+                                        "type": "string"
+                                    },
+                                    "labels": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "title"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Issue created"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {},
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ]
+}

@@ -1,7 +1,6 @@
 import os
 
 from fastapi import HTTPException, Request
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.middleware.base import BaseHTTPMiddleware
 
 
@@ -9,6 +8,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         # Allow OPTIONS requests to pass through without authorization check
         if request.method == "OPTIONS":
+            return await call_next(request)
+
+        # exclude health check endpoint
+        if request.url.path == "/":
             return await call_next(request)
 
         authorization: str = request.headers.get("Authorization")

@@ -1,114 +1,72 @@
-from fastapi import FastAPI, File, HTTPException, UploadFile
+import base64
+import os
+import subprocess
+from typing import Optional
+
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from auth import AuthMiddleware
-from services import (
-    diff_files_logic,
-    execute_command_logic,
-    execute_git_command_logic,
-    read_file_logic,
-    upload_file_logic,
-    zip_files_logic,
-)
-
 app = FastAPI()
-app.add_middleware(AuthMiddleware)
 
 
-class ExecuteCommand(BaseModel):
+class CommandExecutionRequest(BaseModel):
     command: str
 
 
 @app.post("/execute_command/")
-async def execute_command(data: ExecuteCommand):
+async def execute_command(request: CommandExecutionRequest):
     """
-    Execute a terminal command.
+    Execute any Linux terminal command.
+    Note: This endpoint runs on an Arch Linux distribution as a regular user.
     """
     try:
-        output, error = execute_command_logic(data.command)
-        return {"output": output, "error": error}
-    except Exception as ex:
+        process = subprocess.run(request.command, shell=True, capture_output=True, text=True, check=True)
+        return {"output": process.stdout}
+    except subprocess.CalledProcessError as ex:
         raise HTTPException(status_code=500, detail=str(ex)) from ex
 
 
-class ReadFile(BaseModel):
+class FileReadRequest(BaseModel):
     file_path: str
 
 
 @app.get("/read_file/")
-async def read_file(data: ReadFile):
+async def read_file(request: FileReadRequest):
     """
-    Read the content of a specified file.
+    Read a file from the Linux filesystem.
     """
     try:
-        content = read_file_logic(data.file_path)
+        if not os.path.isfile(request.file_path):
+            raise FileNotFoundError(f"File not found: {request.file_path}")
+
+        with open(request.file_path, "r", encoding="utf-8") as file:
+            content = file.read()
         return {"content": content}
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex)) from ex
 
 
-class UploadFileReq(BaseModel):
-    file: UploadFile = File(...)
+class FileSaveRequest(BaseModel):
+    content: str
+    file_path: str
+    base64_encoded: Optional[bool] = False
 
 
-@app.post("/upload_file/")
-async def upload_file(data: UploadFileReq):
+@app.post("/save_file/")
+async def save_file(request: FileSaveRequest):
     """
-    Upload a file to the server.
-    """
-    try:
-        filename = upload_file_logic(data.file)
-        return {"filename": filename}
-    except Exception as ex:
-        raise HTTPException(status_code=500, detail=str(ex)) from ex
-
-
-class DiffFiles(BaseModel):
-    file1_path: str
-    file2_path: str
-
-
-@app.post("/diff_files/")
-async def diff_files(data: DiffFiles):
-    """
-    Diff two files and return the differences.
+    Save a file directly into the filesystem.
+    If the content is base64 encoded, decode it before saving.
     """
     try:
-        diff = diff_files_logic(data.file1_path, data.file2_path)
-        return {"diff": diff}
-    except Exception as ex:
-        raise HTTPException(status_code=500, detail=str(ex)) from ex
+        content = request.content
+        if request.base64_encoded:
+            content = base64.b64decode(content).decode("utf-8")
 
-
-class ExecuteGitCommand(BaseModel):
-    git_command: str
-
-
-@app.post("/execute_git_command/")
-async def execute_git_command(data: ExecuteGitCommand):
-    """
-    Execute a Git command.
-    """
-    try:
-        output, error = execute_git_command_logic(data.git_command)
-        return {"output": output, "error": error}
-    except Exception as ex:
-        raise HTTPException(status_code=500, detail=str(ex)) from ex
-
-
-class ZipFiles(BaseModel):
-    directory_path: str
-    output_zip_path: str
-
-
-@app.post("/zip_files/")
-async def zip_files(data: ZipFiles):
-    """
-    Zip files and directories.
-    """
-    try:
-        message = zip_files_logic(data.directory_path, data.output_zip_path)
-        return {"message": message}
+        os.makedirs(os.path.dirname(request.file_path), exist_ok=True)
+        with open(request.file_path, "w", encoding="utf-8") as file:
+            file.write(content)
+        return {"message": f"File saved successfully at {request.file_path}"}
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex)) from ex
 
@@ -116,4 +74,4 @@ async def zip_files(data: ZipFiles):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8888, reload=True)
+    uvicorn.run("simplified_fastapi:app", host="0.0.0.0", port=8000, reload=True)

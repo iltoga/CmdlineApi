@@ -2,10 +2,16 @@ version: '3.8'
 
 services:
   codegpt-api:
-    build: .
+    container_name: codegpt-api
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "8888:8888"
+      - "8080:8080"
     environment:
       - AUTH_TOKEN=${AUTH_TOKEN}
     volumes:
       - .:/usr/src/app
+      - /Users/stefano.galassi/python/AlertGenius:/usr/src/AlertGenius
+      - /Users/stefano.galassi/flutter/alert_genius_admin:/usr/src/alert_genius_admin
+      - /Users/stefano.galassi/tmp:/usr/src/tmp
