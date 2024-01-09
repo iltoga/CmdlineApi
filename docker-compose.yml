@@ -7,11 +7,9 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8000:8000"
     environment:
       - AUTH_TOKEN=${AUTH_TOKEN}
     volumes:
       - .:/usr/src/app
-      - /Users/stefano.galassi/python/AlertGenius:/usr/src/AlertGenius
-      - /Users/stefano.galassi/flutter/alert_genius_admin:/usr/src/alert_genius_admin
       - /Users/stefano.galassi/tmp:/usr/src/tmp

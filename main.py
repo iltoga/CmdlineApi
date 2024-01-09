@@ -6,6 +6,9 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
+FILE_PATH = "/usr/src/tmp"
+os.makedirs(os.path.dirname(FILE_PATH), exist_ok=True)
+
 app = FastAPI()
 
 
@@ -27,7 +30,7 @@ async def execute_command(request: CommandExecutionRequest):
 
 
 class FileReadRequest(BaseModel):
-    file_path: str
+    filename: str
 
 
 @app.get("/read_file/")
@@ -35,11 +38,12 @@ async def read_file(request: FileReadRequest):
     """
     Read a file from the Linux filesystem.
     """
+    filepath = os.path.join(FILE_PATH, request.filename)
     try:
-        if not os.path.isfile(request.file_path):
-            raise FileNotFoundError(f"File not found: {request.file_path}")
+        if not os.path.isfile(filepath):
+            raise FileNotFoundError(f"File not found: {request.filename}")
 
-        with open(request.file_path, "r", encoding="utf-8") as file:
+        with open(filepath, "r", encoding="utf-8") as file:
             content = file.read()
         return {"content": content}
     except Exception as ex:
@@ -48,7 +52,7 @@ async def read_file(request: FileReadRequest):
 
 class FileSaveRequest(BaseModel):
     content: str
-    file_path: str
+    filename: str
     base64_encoded: Optional[bool] = False
 
 
@@ -63,15 +67,9 @@ async def save_file(request: FileSaveRequest):
         if request.base64_encoded:
             content = base64.b64decode(content).decode("utf-8")
 
-        os.makedirs(os.path.dirname(request.file_path), exist_ok=True)
-        with open(request.file_path, "w", encoding="utf-8") as file:
+        filepath = os.path.join(FILE_PATH, request.filename)
+        with open(filepath, "w", encoding="utf-8") as file:
             file.write(content)
-        return {"message": f"File saved successfully at {request.file_path}"}
+        return {"message": f"File {request.filename} saved successfully. you can go on with your next request."}
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex)) from ex
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run("simplified_fastapi:app", host="0.0.0.0", port=8000, reload=True)
